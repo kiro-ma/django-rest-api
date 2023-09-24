@@ -14,7 +14,7 @@ class Item(models.Model):
 
 
 class Pedido(models.Model):
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     itens = models.ManyToManyField(Item)
 
     def __str__(self):
@@ -23,3 +23,4 @@ class Pedido(models.Model):
     class Meta:
         verbose_name = 'Pedido'
         verbose_name_plural = 'Pedidos'
+

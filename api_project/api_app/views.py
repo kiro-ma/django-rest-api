@@ -210,7 +210,7 @@ class ItemViewSet(viewsets.ViewSet):
         Remove definitivamente um Item.
 
         Somente para Usuários <b>SuperUser</b>.
-        Aviso: Pedidos com este Item não serão afetados, porém haverá FKs para Itens não existentes.
+        Aviso: Pedidos com este Item o perderão da lista de itens.
         """
         item_id = kwargs.get('pk')
         queryset = Item.objects.all()
@@ -226,7 +226,7 @@ class ItemViewSet(viewsets.ViewSet):
 class PedidoViewSet(viewsets.ViewSet):
     queryset = Pedido.objects.all()
     serializer_class = PedidoSerializer
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
 
     def list(self, request):
         """

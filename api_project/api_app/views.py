@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
-from .serializers import UserSerializer, ItemSerializer
+from .serializers import PedidoSerializer, UserSerializer, ItemSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User
@@ -94,6 +94,23 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    @superuser_required
+    def get_by_username(self, request, username=None):
+        """
+        Busca Usuário por username.
+        
+        Somente para Usuários <b>SuperUser</b>.
+        Parâmetros na URL:
+        - username: String, nome de usuário.
+        """
+        queryset = User.objects.filter(username=username)
+        if queryset:
+            serializer = self.serializer_class(queryset, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Usuário não encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+
 
 class ChangePasswordViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -204,3 +221,58 @@ class ItemViewSet(viewsets.ViewSet):
 
         item.delete()
         return Response({'message': 'Item excluído com sucesso.'}, status=status.HTTP_200_OK)
+    
+
+class PedidoViewSet(viewsets.ViewSet):
+    queryset = Pedido.objects.all()
+    serializer_class = PedidoSerializer
+    # permission_classes = (IsAuthenticated,)
+
+    def list(self, request):
+        """
+        Lista todos os Pedidos.
+        
+        Parâmetros no body:
+        - Nenhum.
+        """
+        queryset = Pedido.objects.all()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        """
+        Lista um Pedido em específico.
+        
+        Parâmetros no body:
+        - Nenhum.
+        """
+        queryset = Pedido.objects.all()
+        pedido = get_object_or_404(queryset, pk=pk)
+        serializer = self.serializer_class(pedido)
+        return Response(serializer.data)
+    
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            pedido = serializer.save()
+            return Response({'message': 'Pedido criado com sucesso.', 'id': pedido.id}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    def list_by_user(self, request, user_id=None):
+        """
+        Lista os Pedidos de um usuário específico.
+
+        Parâmetros na URL:
+        - user_id: ID do usuário a ser pesquisado.
+        """
+        queryset = Pedido.objects.filter(user_id=user_id)
+        if queryset:
+            serializer = self.serializer_class(queryset, many=True)
+        else:
+            return Response({'error': 'Usuário não encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if serializer.data:
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Nenhum pedido encontrado.'}, status=status.HTTP_404_NOT_FOUND)

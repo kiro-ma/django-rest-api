@@ -248,8 +248,16 @@ class PedidoViewSet(viewsets.ViewSet):
         """
         queryset = Pedido.objects.all()
         pedido = get_object_or_404(queryset, pk=pk)
-        serializer = self.serializer_class(pedido)
-        return Response(serializer.data)
+
+        pedido_itens = pedido.itens.all()
+
+        data = {
+            'id': pedido.id,
+            'user': pedido.user.id,
+            'itens': [{'id': item.id, 'nome': item.nome, 'preco': item.preco} for item in pedido_itens]
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
     
     def create(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)

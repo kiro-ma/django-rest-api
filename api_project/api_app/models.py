@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from datetime import datetime, timedelta
+from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 class Item(models.Model):
     nome = models.CharField(max_length=200)
@@ -26,8 +30,9 @@ class PedidoItem(models.Model):
 class Pedido(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     data_criacao = models.DateTimeField(default=timezone.now)
-    data_vencimento = models.DateTimeField(default=timezone.now)
+    data_vencimento = models.DateTimeField(default=datetime.today() + timedelta(days=7)) # data de vencimento padrão para 7 dias após a compra.
     status_pagamento = models.BooleanField(default=False)
+    cancelado = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.id)
@@ -35,4 +40,3 @@ class Pedido(models.Model):
     class Meta:
         verbose_name = 'Pedido'
         verbose_name_plural = 'Pedidos'
-

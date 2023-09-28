@@ -9,7 +9,7 @@ class PedidoItemInline(admin.TabularInline):
 @admin.register(Pedido)
 class PedidoAdmin(admin.ModelAdmin):
     inlines = [PedidoItemInline]
-    fields = ('user', 'quantidade_de_itens_em_pedidos', 'preco_total', 'data_criacao', 'data_vencimento', 'status_pagamento')
+    fields = ('user', 'quantidade_de_itens_em_pedidos', 'preco_total', 'data_criacao', 'data_vencimento', 'status_pagamento', 'cancelado')
     readonly_fields = ('quantidade_de_itens_em_pedidos', 'preco_total',)
     list_display = ('user', 'quantidade_de_itens_em_pedidos', 'preco_total',)
 
@@ -24,9 +24,9 @@ class PedidoAdmin(admin.ModelAdmin):
             total=Sum(F('quantidade') * F('item__preco'), output_field=DecimalField())
         )['total']
         
-        return 'R$ ' + str(total_preco) if total_preco is not None else 'R$ 0.00'
+        return 'R$ ' + str(round(total_preco, 2)) if total_preco is not None else 'R$ 0.00'
 
-    preco_total.short_description = 'Preço Total do Pedido'
+    preco_total.short_description = 'Preço Total do Pedido (de acordo com os valores atuais dos Itens)'
 
     quantidade_de_itens_em_pedidos.short_description = 'Quantidade de Itens em Pedidos'
 

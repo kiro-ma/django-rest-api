@@ -44,13 +44,14 @@ e
 ```
 python manage.py migrate
 ```
+Crie um superuser:
+```
+python manage.py createsuperuser
+```
 Inicie a aplicação:
 ```
 python manage.py runserver
 ```
-
-
-
 
 ## Documentação
 

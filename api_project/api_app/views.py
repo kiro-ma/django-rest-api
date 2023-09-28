@@ -261,6 +261,7 @@ class PedidoViewSet(viewsets.ViewSet):
     def list_by_data(self, request, user_id=None):
         """
         Lista todos os Pedidos em um intervalo de datas.
+        
         Este é um endpoint especial, se colocar "username" na URL, além de filtrar por data também vai filtrar pelo User.
         Mas se deixar somente com as datas, irá filtrar os Pedidos de todos os Users por data.
 

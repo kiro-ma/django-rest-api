@@ -36,6 +36,18 @@ class Pedido(models.Model):
 
     def __str__(self):
         return str(self.id)
+    
+    def marcar_como_pago(self):
+        if self.status_pagamento and not self.cancelado:
+            for pedido_item in PedidoItem.objects.filter(pedido=self):
+                item = pedido_item.item
+                quantidade = pedido_item.quantidade
+                if quantidade <= item.estoque:
+                    item.estoque -= quantidade
+                    item.save()
+                else:
+                    raise TypeError("Não existem itens o suficiente")
+                
 
     class Meta:
         verbose_name = 'Pedido'

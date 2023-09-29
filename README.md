@@ -83,6 +83,7 @@ Obs: Itens possuem quantidade de estoque, que será utilizada para fazer verific
 - Listar Pedidos de um Usuário específico, por ID.
 - Listar um Pedido específico pro ID.
 - Editar dados de um Pedido.
+- Marcar um Pedido não cancelado como pago, nesse momento serão removidos do estoque de cada Item listado no Pedido as quantidades que foram informadas no próprio Pedido.
 
 Em um determinado Pedido podem haver diferentes Itens cada um com suas quantidades, se disponível no estoque, por exemplo, um Pedido pode conter 5 Itens A e 1 Item B.
 

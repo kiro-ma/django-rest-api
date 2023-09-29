@@ -339,7 +339,13 @@ class PedidoViewSet(viewsets.ViewSet):
             pedido_data = request.data.copy()
 
             for item_id, quant in zip(pedido_data["itens"], pedido_data["quant"]):
-                PedidoItem.objects.create(pedido=pedido_query, item=Item.objects.get(pk=item_id), quantidade=quant).save()
+                item_obj = Item.objects.get(pk=item_id)
+                if quant <= item_obj.estoque:
+                    PedidoItem.objects.create(pedido=pedido_query, item=Item.objects.get(pk=item_id), quantidade=quant).save()
+                else:
+                    return Response({'error': 'Sem itens o suficiente no estoque. Foram pedidos ' +
+                                     str(quant) + ' ' + str(item_obj.nome) + ' (id: ' + str(item_obj.pk) +
+                                     '), mas só existem ' + str(item_obj.estoque) + ' no estoque.'}, status=status.HTTP_400_BAD_REQUEST)
 
             return Response({'message': 'Pedido criado com sucesso.', 'id': pedido.id}, status=status.HTTP_201_CREATED)
         else:
@@ -383,8 +389,12 @@ class PedidoViewSet(viewsets.ViewSet):
         if not pedido:
             return Response({'error': 'Pedido não encontrado.'}, status=status.HTTP_404_NOT_FOUND)
 
-        if 'status_pagamento' in request.data:
+        if 'status_pagamento' in request.data and pedido.status_pagamento == False:
             pedido.status_pagamento = request.data['status_pagamento']
+            try:
+                pedido.marcar_como_pago()
+            except Exception as e:
+                return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         if 'cancelado' in request.data:
             pedido.cancelado = request.data['cancelado']
 
